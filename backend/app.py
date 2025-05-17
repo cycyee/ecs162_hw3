@@ -10,7 +10,6 @@ from bson import ObjectId
 from datetime import datetime
 
 
-
 static_path = os.getenv('STATIC_PATH','static')
 template_path = os.getenv('TEMPLATE_PATH','templates')
 #mongo
@@ -43,7 +42,6 @@ def requires_moderator(f):
 
 
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
-
 
 app.config.update({
     "OIDC_CLIENT_ID":         os.getenv("OIDC_CLIENT_ID"),
@@ -110,18 +108,16 @@ def auth_callback():
         print("[auth_callback] Exception during token exchange/parsing:")
         traceback.print_exc()
         return "Authentication failed", 500
-    #redirect (temp debug fr now)
-    return redirect("/api/me")
+    return redirect("http://localhost:5173") #temp for nwo
 
 
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    return redirect("http://localhost:5173")
 
 #route to grab all the comments on some story
 @app.route("/api/comments", methods=["GET"])
-@requires_auth
 def list_comments():
     story_id = request.args.get("storyId")
     if not story_id:
@@ -136,7 +132,8 @@ def list_comments():
             "authorEmail": c.get("authorEmail"),
             "text": c.get("text"),
             "createdAt":c.get("createdAt").isoformat() if c.get("createdAt") else None,
-            "removedByModerator":c.get("removedByModerator", False)
+            "removedByModerator":c.get("removedByModerator", False), 
+            "depth" : c.get("depth")
         })
 
     return jsonify(comments)
@@ -148,20 +145,24 @@ def add_comment():
     data = request.get_json() or {}
     story_id = data.get("id") or data.get("storyId")
     text = data.get("text")
-
+    parent_id = data.get("parentId")
     if not text:
         return jsonify({"error": "Missing storyId or text"}), 400
+    
+    p_oid = ObjectId(parent_id) if parent_id else None
 
     comment = {
-        "storyId":            story_id,
-        "text":               text,
-        "authorId":           session["user"]["sub"],
-        "authorEmail":        session["user"]["email"],
-        "createdAt":          datetime.now(),
+        "storyId": story_id,
+        "text":text,
+        "parentId": p_oid,
+        "authorId": session["user"]["sub"],
+        "authorEmail":session["user"]["email"],
+        "createdAt": datetime.now(),
         "removedByModerator": False
     }
     result = db.comments.insert_one(comment)
     return jsonify({"comment_id": str(result.inserted_id)}), 201
+
 
 #delete some comment id
 @app.route("/api/remove/<id>", methods=["DELETE"])
@@ -181,19 +182,27 @@ def remove_comment(id):
         return jsonify({"error": "Comment not found"}), 404
     return ("", 204)
 
+
 #debug to grab login infp
 @app.route("/api/me")
 def me():
-    if "user" not in session:
-        return jsonify({"error": "Not logged in bud"}), 401
+    user = session.get("user")
+    if not user:
+        return jsonify({"user": None}), 401
     
-    user = session["user"]
     return jsonify({
         "sub":   user["sub"],
         "email": user["email"],
         "name":  user["name"],
         "role":  user["role"],
     })
+
+@app.route("/api/comments/clear") #will remove after deploy
+def clear_comments():
+    """Wipe all comments out of the DB (moderator only)."""
+    db.comments.delete_many({})
+    return ("", 204)
+
 
 @app.route('/api/key')
 def get_key():
@@ -238,10 +247,11 @@ def get_stories():
     except:
         return jsonify({"error": "API ERROR"}), 500
 
-
+#debug
 @app.route("/_routes")
 def list_routes():
     return jsonify(sorted(str(r) for r in app.url_map.iter_rules()))
+
 
 @app.route('/')
 @app.route('/<path:path>')
@@ -249,6 +259,7 @@ def serve_frontend(path=''):
     if path != '' and os.path.exists(os.path.join(static_path,path)):
         return send_from_directory(static_path, path)
     return send_from_directory(template_path, 'index.html')
+
 
 @app.route("/test-mongo")
 def test_mongo():
@@ -264,6 +275,7 @@ def test_mongo():
             "removed":     c.get("removedByModerator", False)
         })
     return jsonify({"collections": db.list_collection_names(), "comments" : comments})
+
 
 if __name__ == '__main__':
     debug_mode = os.getenv('FLASK_ENV') != 'production'

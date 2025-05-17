@@ -9,18 +9,61 @@ function updateDateTime() {
     document.getElementById('dateTime').innerText = now.toLocaleString('en-US', options);
 }
 
-let me;
+let me = null;
 
-//load up and grab login info (mod vs user)
 async function fetchMe() {
-    const resp = await fetch("/api/me", { credentials: "include" });
-    if (resp.ok) {
-        me = await resp.json();
-    } 
-    else {
+    try {
+        const resp = await fetch("/api/me", {
+            credentials: "include"
+        });
+
+        //401 specifically means we went thru n are not logged in
+        if (resp.status === 401) {
+            me = null;
+            console.log("Not logged in (401)");
+            return;
+        }
+
+        //actual fail in fetch
+        if (!resp.ok) {
+            console.error("fetchMe failed:", resp.status, resp.statusText);
+            me = null;
+            return;
+        }
+
+        const payload = await resp.json();
+        me = payload.user ?? payload;
+        console.log("Logged in as:", me);
+    }
+    catch (err) {
+        console.error("fetchMe exception:", err);
         me = null;
     }
 }
+
+function renderAuthControls() {
+    const container = document.getElementById("auth-controls");
+    container.innerHTML = "";
+
+    if (!me) {
+        const btn = document.createElement("button");
+        btn.textContent = "Log In";
+        btn.onclick = () => {
+            window.location.href = "http://localhost:8000/login";
+        };
+        container.appendChild(btn);
+    }
+    else {
+        const btn = document.createElement("button");
+        btn.textContent = "Log Out";
+        btn.style.marginLeft = "8px";
+        btn.onclick = () => {
+            window.location.href = "http://localhost:8000/logout";
+        };
+        container.appendChild(btn);
+    }
+}
+
 
 function setupCommentUI(storyId, containerEl) {
     const listEl   = containerEl.querySelector(".comments-list");
@@ -29,43 +72,104 @@ function setupCommentUI(storyId, containerEl) {
 
     //fn to reload/ rerenter the comments for each story
     async function reloadComments() {
-        const resp = await fetch(
-        `/api/comments?storyId=${encodeURIComponent(storyId)}`,
-        { credentials: "include" }
-        );
-        if (!resp.ok) {
-        console.error("Failed to fetch comments for", storyId);
-        return;
-        }
+        const resp = await fetch(`/api/comments?storyId=${encodeURIComponent(storyId)}`,{ credentials: "include" });
+        if (!resp.ok) return console.log("Failed to fetch comments");
         const comments = await resp.json();
-        listEl.innerHTML = "";
+
+        //map parent ids to children
+        const byParent = {};
         comments.forEach(c => {
+            byParent[c.id] = byParent[c.id] || [];
+        });
+        comments.forEach(c => {
+            if (c.parentId && byParent[c.parentId]) {
+            byParent[c.parentId].push(c);
+            }
+        });
+
+        //recursive render
+        const renderTree = (nodes, container, depth = 0) => {
+            nodes.forEach(c => {
             const div = document.createElement("div");
-            div.style.padding = "4px 0"; //need to add styling latr
+            div.style.marginLeft = `${depth * 20}px`;
+            div.style.padding = "4px 0";
+            div.style.borderLeft = depth ? "2px solid #ddd" : "";
+            div.style.paddingLeft = depth ? "8px" : "";
+
+            if (depth && c.parentEmail) {
+                const info = document.createElement("div");
+                info.style.fontSize = "0.8em";
+                info.style.color = "#666";
+                info.textContent = `Replying to ${c.parentEmail}`;
+                div.appendChild(info);
+            }
+
             if (c.removedByModerator) {
-                div.textContent = "Comment removed by moderator";
-            } 
+                div.appendChild(document.createTextNode("Comment removed by moderator"));
+            }
             else {
-                div.textContent = `[${c.authorEmail}] ${c.text}`;
+                div.appendChild(document.createTextNode(`[${c.authorEmail}] ${c.text}`));
+
+                // mod del
                 if (me && me.role === "moderator") {
                 const btn = document.createElement("button");
                 btn.textContent = "Delete";
-                btn.style.marginLeft = "8px"; //tsyle needed
-
+                btn.style.marginLeft = "8px";
                 btn.onclick = async () => {
-                    await fetch(`/api/remove/${encodeURIComponent(c.id)}`, {
-                    method: "DELETE",
-                    credentials: "include",
+                    await fetch(`/api/remove/${c.id}`, {
+                    method: "DELETE", credentials: "include"
                     });
                     await reloadComments();
-            };
-            div.appendChild(btn);
-            }
-        }
-        listEl.appendChild(div);
-        });
-    }
+                };
+                div.appendChild(btn);
+                }
 
+                if (me) {
+                const reply = document.createElement("button");
+                reply.textContent = "Reply";
+                reply.style.marginLeft = "8px";
+                reply.onclick = () => {
+                    if (div.querySelector(".reply-input")) return;
+
+                        const box = document.createElement("div");
+                        box.style.marginTop = "4px";
+                        box.innerHTML = `
+                        <input type="text" class="reply-input" placeholder="Your reply…" style="width:70%" />
+                        <button class="reply-submit">Send</button>
+                        `;
+
+                        box.querySelector(".reply-submit").onclick = async () => {
+                            const text = box.querySelector(".reply-input").value.trim();
+                            if (!text) return alert("Enter a reply");
+                            await fetch("/api/add_comment", {
+                                method: "POST",
+                                credentials: "include",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    storyId,
+                                    parentId: c.id, //pass comments id as parentid
+                                    text
+                                })
+                            });
+                            await reloadComments();
+                        };
+                        div.appendChild(box);
+                };
+                div.appendChild(reply);
+                }
+            }
+
+            container.appendChild(div);
+            //recurse into children
+            if (byParent[c.id] && byParent[c.id].length) {
+                renderTree(byParent[c.id], container, depth + 1);
+            }
+            });
+        };
+        listEl.innerHTML = "";
+        const roots = comments.filter(c => !c.parentId);
+        renderTree(roots, listEl, 0);
+    }
     //conection for add commen
     buttonEl.addEventListener("click", async () => {
         const text = inputEl.value.trim();
@@ -83,18 +187,18 @@ function setupCommentUI(storyId, containerEl) {
         inputEl.value = "";
         await reloadComments();
     });
-
     reloadComments();
+    console.log("reloading comments", me)
 }
 
-//globals for pagination, distributing items among columns, and rate throttling (all below imported fom hw2)
+//(all below imported fom hw2)
 let page = 1
 let nextColumn = 0
 let loading = false
 let lastCall = 0
 
 async function loadArticles() {
-    if (loading) return; //if subsequent calls are too frequent or if we are in the middle of processing a call we return
+    if (loading) return;
     if (Date.now() - lastCall < 6000){
         return;
     }
@@ -123,8 +227,6 @@ async function loadArticles() {
             if (!container) {
                 return;
             }
-            //layout of appended html matches what I had in hw1, with minor improvements such as read time and photo credits
-
             const imgHtml = story.image
                 ? `<img src="${story.image}" alt="${story.title}"/>`
                 : `<div class="no-image">No image available</div>`;
@@ -177,6 +279,7 @@ async function loadArticles() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     await fetchMe();
+    renderAuthControls()
     console.log(" Current user:", me);
     updateDateTime();
     setInterval(updateDateTime, 1000);
