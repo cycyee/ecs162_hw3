@@ -1,0 +1,184 @@
+@font-face{
+    font-family: 'HeaderFont';
+    src: url('assets/ChomskyGothic.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ColumnFont';
+    src: url('assets/CheltenhamStdBoldCond.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* date, time, and the todays paper all are in lato/arial I belive*/
+header{
+    background-color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    font-family: Helvetica, sans-serif;
+}
+
+header p {
+    position: absolute;
+    margin: 0 0 10px 0;
+    font-size: small;
+    top: 40px;
+    left: 20px;
+    color: #333;
+}
+
+header h3 {
+    margin: 0;
+    font-weight: normal;
+    font-size: 4em;
+    font-family: 'HeaderFont', sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: black
+}
+
+a:visited {
+    color: black;
+}
+
+#dateTime {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size:small;
+    font-weight: bold;
+    color: #333;
+}
+
+/*Nav bar uses either lato or Arial, and is pretty small*/
+nav{
+    background-color: #fff;
+    padding: 10px 20px;
+    font-family: Helvetica, sans-serif;
+    font-size:smaller;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+nav ul li{
+    display: inline-block;
+    margin: 0 15px;
+}
+
+/*Transition for underlines*/
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    transition: border-bottom 0.1s, font-weight 0.1s;
+}
+
+/* underline when hovered ovr*/
+nav ul li a:hover{
+    border-bottom: 3px solid #333;
+    font-weight: bold;
+}
+
+/*double line under nav bar*/
+.double-line {
+    border: none;
+    border-top: 3px double #010000;
+    margin: 0 20px 20px 20px;
+}
+
+main {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 20px;
+}
+
+.credit {
+    font-size: x-small;
+    font-family: Helvetica, sans-serif;
+}
+
+.readTime {
+    font-size: x-small;
+    font-family: Helvetica, sans-serif;
+}
+
+.column {
+    box-sizing: border-box;
+    padding: 10px;
+    width: 100%;
+}
+
+/*tablet View 2 Col */
+@media (min-width: 768px) {
+    .column {
+        width: 50%;
+    }
+    .column:not(:first-child) {
+        border-left: 1px solid #ccc;
+    }
+}
+
+/*3 Col desktop veiw*/
+@media (min-width: 1024px) {
+    .column {
+        width: 33.33%;
+    }
+    .column:not(:first-child) {
+        border-left: 1px solid #ccc;
+    }
+}
+
+/*articles have a specific title font (Chomsky is what I found on google and I used Georgia for the content */
+article {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+article h2{
+    margin-top: 0;
+    font-family: 'ColumnFont';
+}
+
+article p{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: rgb(84, 84, 84)
+}
+
+article a{
+    font-family: "Columnfont";
+    margin: 0;
+    font-weight: normal;
+    font-size: 2em;
+}
+
+article a p{
+    font-size:medium
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+footer{
+    padding: 20px;
+    text-align: center;
+}
+
