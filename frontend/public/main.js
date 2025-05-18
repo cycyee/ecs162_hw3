@@ -69,6 +69,15 @@ function setupCommentUI(storyId, containerEl) {
     const listEl   = containerEl.querySelector(".comments-list");
     const inputEl  = containerEl.querySelector(".comment-input");
     const buttonEl = containerEl.querySelector(".comment-post-button");
+    //not logged in -> no commenting for u
+    if (!me) {
+        inputEl.style.display  = "none";
+        buttonEl.style.display = "none";
+    } 
+    else {
+        inputEl.style.display  = "";
+        buttonEl.style.display = "";
+    }
 
     //fn to reload/ rerenter the comments for each story
     async function reloadComments() {
@@ -87,7 +96,6 @@ function setupCommentUI(storyId, containerEl) {
             }
         });
 
-        //recursive render
         const renderTree = (nodes, container, depth = 0) => {
             nodes.forEach(c => {
             const div = document.createElement("div");
@@ -110,7 +118,7 @@ function setupCommentUI(storyId, containerEl) {
             else {
                 div.appendChild(document.createTextNode(`[${c.authorEmail}] ${c.text}`));
 
-                // mod del
+                // mod delete
                 if (me && me.role === "moderator") {
                 const btn = document.createElement("button");
                 btn.textContent = "Delete";
@@ -147,7 +155,7 @@ function setupCommentUI(storyId, containerEl) {
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({
                                     storyId,
-                                    parentId: c.id, //pass comments id as parentid
+                                    parentId: c.id,    //pass comments id as parentid
                                     text
                                 })
                             });
@@ -160,7 +168,7 @@ function setupCommentUI(storyId, containerEl) {
             }
 
             container.appendChild(div);
-            //recurse into children
+            //recurse
             if (byParent[c.id] && byParent[c.id].length) {
                 renderTree(byParent[c.id], container, depth + 1);
             }
@@ -191,14 +199,13 @@ function setupCommentUI(storyId, containerEl) {
     console.log("reloading comments", me)
 }
 
-//(all below imported fom hw2)
 let page = 1
 let nextColumn = 0
 let loading = false
 let lastCall = 0
 
 async function loadArticles() {
-    if (loading) return;
+    if (loading) return; //if subsequent calls are too frequent or if we are in the middle of processing a call we return
     if (Date.now() - lastCall < 6000){
         return;
     }
@@ -227,6 +234,8 @@ async function loadArticles() {
             if (!container) {
                 return;
             }
+            //layout of appended html matches what I had in hw1, with minor improvements such as read time and photo credits
+
             const imgHtml = story.image
                 ? `<img src="${story.image}" alt="${story.title}"/>`
                 : `<div class="no-image">No image available</div>`;
