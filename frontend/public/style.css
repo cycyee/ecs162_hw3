@@ -182,6 +182,7 @@ footer{
     text-align: center;
 }
 
+/* ADDED FOR HW3 */
 button{
     background-color: #545353;
     border: 0.5px solid #454040;
@@ -300,4 +301,32 @@ button:active {
 
 #sidebar-post-btn:hover {
     background-color: #444;
+}
+
+/* COMMENT CHANGES */
+.comment-divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 12px 0;
+}
+
+.comment-text {
+    word-wrap: break-word;
+    white-space: normal;
+    font-size: 0.95em;
+    line-height: 1.5;
+    margin-bottom: 6px;
+}
+
+
+/* OVERLAY, becomes dark when sidebar */
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 999;
+    display: none;
 }

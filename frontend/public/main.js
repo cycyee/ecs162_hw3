@@ -5,8 +5,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     setInterval(updateDateTime, 1000);
     loadArticles();
 
+    // CLOSE the sidebar
     document.getElementById("sidebar-close").onclick = () => {
         document.getElementById("comment-sidebar").classList.remove("open");
+        document.getElementById("overlay").style.display = "none"
     };
 });
 
@@ -80,8 +82,11 @@ function setupSidebarCommentUI(storyId) {
     const listEl = document.getElementById("sidebar-comments-list");
     const inputEl = document.getElementById("sidebar-comment-input");
     const buttonEl = document.getElementById("sidebar-post-btn");
+    const overlay = document.getElementById("overlay");
 
+    // OPEN the comments
     sidebar.classList.add("open");
+    overlay.style.display = "block"; // Enable the overlay when open
     sidebar.dataset.storyId = storyId;
 
     //not logged in -> no commenting for u
@@ -131,7 +136,11 @@ function setupSidebarCommentUI(storyId) {
                     div.appendChild(document.createTextNode("Comment removed by moderator"));
                 }
                 else {
-                    div.appendChild(document.createTextNode(`[${c.authorEmail}] ${c.text}`));
+                    // CREATE COMMENT NODES
+                    const textDiv = document.createElement("div");
+                    textDiv.className = "comment-text";
+                    textDiv.textContent = `[${c.authorEmail}] ${c.text}`;
+                    div.appendChild(textDiv);
 
                     // mod delete
                     if (me && me.role === "moderator") {
@@ -186,6 +195,13 @@ function setupSidebarCommentUI(storyId) {
                 //recurse
                 if (byParent[c.id] && byParent[c.id].length) {
                     renderTree(byParent[c.id], container, depth + 1);
+                    
+                    // ADD LINE BETWEEN EACH THREAD
+                    if (depth === 0) {
+                        const hr = document.createElement("hr");
+                        hr.className = "comment-divider";
+                        container.appendChild(hr);
+                    }
                 }
             });
         };
