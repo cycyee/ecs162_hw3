@@ -56,7 +56,6 @@ function renderAuthControls() {
     else {
         const btn = document.createElement("button");
         btn.textContent = "Log Out";
-        btn.style.marginLeft = "8px";
         btn.onclick = () => {
             window.location.href = "http://localhost:8000/logout";
         };
@@ -139,29 +138,29 @@ function setupCommentUI(storyId, containerEl) {
                 reply.onclick = () => {
                     if (div.querySelector(".reply-input")) return;
 
-                        const box = document.createElement("div");
-                        box.style.marginTop = "4px";
-                        box.innerHTML = `
-                        <input type="text" class="reply-input" placeholder="Your reply…" style="width:70%" />
-                        <button class="reply-submit">Send</button>
-                        `;
+                    const box = document.createElement("div");
+                    box.style.marginTop = "4px";
+                    box.innerHTML = `
+                    <input type="text" class="reply-input" placeholder="Your reply…"/>
+                    <button class="reply-submit">Send</button>
+                    `;
 
-                        box.querySelector(".reply-submit").onclick = async () => {
-                            const text = box.querySelector(".reply-input").value.trim();
-                            if (!text) return alert("Enter a reply");
-                            await fetch("/api/add_comment", {
-                                method: "POST",
-                                credentials: "include",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    storyId,
-                                    parentId: c.id,    //pass comments id as parentid
-                                    text
-                                })
-                            });
-                            await reloadComments();
-                        };
-                        div.appendChild(box);
+                    box.querySelector(".reply-submit").onclick = async () => {
+                        const text = box.querySelector(".reply-input").value.trim();
+                        if (!text) return alert("Enter a reply");
+                        await fetch("/api/add_comment", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                storyId,
+                                parentId: c.id,    //pass comments id as parentid
+                                text
+                            })
+                        });
+                        await reloadComments();
+                    };
+                    div.appendChild(box);
                 };
                 div.appendChild(reply);
                 }
@@ -267,7 +266,6 @@ async function loadArticles() {
                     type="text"
                     class="comment-input"
                     placeholder="Write a comment…"
-                    style="width:80%; padding:4px;"
                 />
                 <button class="comment-post-button">Post Comment</button>
             </div>`
