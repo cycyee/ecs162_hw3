@@ -37,7 +37,6 @@ async function fetchMe() {
             console.log("Not logged in (401)");
             return;
         }
-
         //actual fail in fetch
         if (!resp.ok) {
             console.error("fetchMe failed:", resp.status, resp.statusText);
@@ -132,18 +131,38 @@ function setupSidebarCommentUI(storyId) {
                     div.appendChild(info);
                 }
 
-                if (c.removedByModerator) {
-                    div.appendChild(document.createTextNode("Comment removed by moderator"));
-                }
                 else {
                     // CREATE COMMENT NODES
                     const textDiv = document.createElement("div");
                     textDiv.className = "comment-text";
-                    textDiv.textContent = `[${c.authorEmail}] ${c.text}`;
+
+                    const avatar = document.createElement("div");
+                    avatar.className = "comment-avatar";
+
+                    avatar.textContent = c.authorEmail.charAt(0).toUpperCase();
+                    textDiv.appendChild(avatar);
+
+                    const author = document.createElement("span");
+                    author.className = "comment-author";
+                    author.textContent = c.authorEmail;
+
+                    const body = document.createElement("span");
+                    body.className = "comment-body";
+                    if (c.removedByModerator) {
+                        body.textContent = "Comment removed by moderator";
+                        body.style.color = "#9c9999"; //to make them grey/translusent
+                    }
+                    else{
+                        body.textContent = ` ${c.text}`;
+                    }
+
+                    textDiv.appendChild(author);
+                    textDiv.appendChild(body);
+
                     div.appendChild(textDiv);
 
                     // mod delete
-                    if (me && me.role === "moderator") {
+                    if (me && me.role === "moderator" && !c.removedByModerator) {
                         const btn = document.createElement("button");
                         btn.textContent = "Delete";
                         btn.style.marginLeft = "8px";
@@ -156,7 +175,7 @@ function setupSidebarCommentUI(storyId) {
                         div.appendChild(btn);
                     }
 
-                    if (me) {
+                    if (me && !c.removedByModerator) {
                         const reply = document.createElement("button");
                         reply.textContent = "Reply";
                         reply.style.marginLeft = "8px";

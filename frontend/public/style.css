@@ -330,3 +330,41 @@ button:active {
     z-index: 999;
     display: none;
 }
+
+
+.comment-text {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.comment-avatar {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: #c5c0c0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: 1rem;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: #222;
+}
+
+.comment-body {
+    color: #333;
+    margin-left: 4px;
+}
+
+.comment-removed{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #9c9999;
+}
