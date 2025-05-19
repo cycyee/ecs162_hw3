@@ -13,6 +13,7 @@ import os
 from datetime import datetime
 
 # Testing environment
+os.environ["PYTHON_TESTING"] = "1"
 os.environ["MONGO_DB_NAME"] = "test"
 os.environ["NYT_API_KEY"] = "TEST_KEY"
 

@@ -14,18 +14,25 @@ from unittest.mock import MagicMock
 
 static_path = os.getenv('STATIC_PATH','static')
 template_path = os.getenv('TEMPLATE_PATH','templates')
-#mongo
+# mongo setup
 mongo_uri = os.getenv("MONGO_URI")
-default_db = os.getenv("MONGO_DB_NAME", "test")  # !! For testing
 
-# Do the mongo_uri if not testing, otherwise do default_db
+# Use "test" DB if running tests, else use "mydatabase"
+if os.getenv("PYTHON_TESTING") == "1":
+    db_name = "test"
+else:
+    db_name = "mydatabase"
+
 if mongo_uri:
     mongo = MongoClient(mongo_uri)
-    db = mongo.get_database(default_db)
+    db = mongo.get_database(db_name)
 else:
+    from unittest.mock import MagicMock
     mongo = MagicMock()
     db = MagicMock()
 
+
+# =============================
 
 app = Flask(__name__, static_folder=static_path, template_folder=template_path)
 CORS(app)
