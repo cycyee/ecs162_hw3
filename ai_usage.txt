@@ -1,0 +1,91 @@
+Calvin Yee
+Mehroz Akhtar
+
+
+1. Citation/Sources
+
+js utility resources for node creation, DOM management, etc:
+https://developer.mozilla.org/en-US/docs/Web/API/Document/createTextNode
+
+
+MongoDB:
+https://www.mongodb.com/docs/languages/python/pymongo-driver/current/crud/#std-label-pymongo-crud
+https://stackoverflow.com/questions/48360853/edit-and-save-a-document-using-flask-and-mongodb
+
+Flask:
+https://flask.palletsprojects.com/en/stable/patterns/viewdecorators/ (for @wraps)
+
+
+
+Prompt 1:
+Can you create a basic button element in js so I can append it to an element?
+
+Response 1:
+Here’s a self‐contained snippet you can drop into your JS anywhere to create and append a basic button:
+
+// 1) Create the button
+const btn = document.createElement("button");
+btn.type = "button";           // prevents default form-submit behavior
+btn.textContent = "Click Me";  // the text inside the button
+btn.className = "my-button";   // optional: give it a class for styling
+
+// 2) Optionally, wire up a click handler
+btn.addEventListener("click", () => {
+  console.log("Button was clicked!");
+});
+
+// 3) Append it to some container already on the page
+// Replace `someContainer` with your actual element reference
+const someContainer = document.getElementById("element-id");
+someContainer.appendChild(btn);
+
+Prompt 2:
+If my frontend is being hosted on localhost:5173 and my backend is on 8000, 
+How can I get my login to redirect back to the home page after it is done? 
+I have a redirect placeholder to some other route currently, but I no longer need this to be the case for debugging
+
+Response 2:
+1) Tell Flask where your front-end lives
+In your .env (or wherever you configure env vars for dev), add:
+FRONTEND_URL=http://localhost:5173
+
+And load it in your app:
+
+import os
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+In your redirect, replace:
+
+redirect(url)
+with:
+redirect(FRONTEND_URL)
+
+This should redirect you properly to your home page. 
+
+Prompt 3: 
+Can you create a command for me to clear my database entries for debug purposes? 
+I want this to become a route to call on my Flask backend so I can periodically clear my test comments
+
+Response 3:
+Add this route to your Flask app to wipe out all comments in one go:
+
+@app.route("[put your route here]", methods=["POST"])
+def clear_comments():
+    """
+    Debug endpoint: clear all comments from MongoDB.
+    Only accessible to moderators.
+    """
+    result = db.comments.delete_many({})
+    return jsonify({
+        "deletedCount": result.deleted_count
+    }), 200
+
+    Once that’s in place, you can do:
+
+await fetch("/api/comments/clear", {
+  method: "POST",
+  credentials: "include"
+});
+
+From your JS console.
+—and your comments collection will be empty every time you call it.
