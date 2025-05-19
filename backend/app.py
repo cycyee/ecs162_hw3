@@ -9,13 +9,22 @@ from functools import wraps
 from bson import ObjectId
 from datetime import datetime
 
+# For testing
+from unittest.mock import MagicMock
 
 static_path = os.getenv('STATIC_PATH','static')
 template_path = os.getenv('TEMPLATE_PATH','templates')
 #mongo
 mongo_uri = os.getenv("MONGO_URI")
-mongo = MongoClient(mongo_uri)
-db = mongo.get_default_database()
+default_db = os.getenv("MONGO_DB_NAME", "test")  # !! For testing
+
+# Do the mongo_uri if not testing, otherwise do default_db
+if mongo_uri:
+    mongo = MongoClient(mongo_uri)
+    db = mongo.get_database(default_db)
+else:
+    mongo = MagicMock()
+    db = MagicMock()
 
 
 app = Flask(__name__, static_folder=static_path, template_folder=template_path)
