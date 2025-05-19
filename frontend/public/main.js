@@ -1,16 +1,17 @@
-document.addEventListener("DOMContentLoaded", async () => {
-    await fetchMe();
-    renderAuthControls();
-    updateDateTime();
-    setInterval(updateDateTime, 1000);
-    loadArticles();
+function setupPage() {
+    document.addEventListener("DOMContentLoaded", async () => {
+        await fetchMe();
+        renderAuthControls();
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        loadArticles();
 
-    // CLOSE the sidebar
-    document.getElementById("sidebar-close").onclick = () => {
-        document.getElementById("comment-sidebar").classList.remove("open");
-        document.getElementById("overlay").style.display = "none"
-    };
-});
+        document.getElementById("sidebar-close").onclick = () => {
+            document.getElementById("comment-sidebar").classList.remove("open");
+            document.getElementById("overlay").style.display = "none";
+        };
+    });
+}
 
 function updateDateTime() {
     const now = new Date();
@@ -327,9 +328,13 @@ observer.observe(document.getElementById('watcher'));
 
 
 // Export for Node Unit Testing
+if (typeof window !== 'undefined') setupPage();
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         updateDateTime,
-        loadArticles
+        loadArticles,
+        setupPage,
+        renderAuthControls 
     };
 }
