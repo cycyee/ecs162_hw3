@@ -231,7 +231,8 @@ function setupSidebarCommentUI(storyId) {
         renderTree(roots, listEl, 0);
     }
 
-    //conection for add commen
+    //conection for add comment
+    /*
     buttonEl.addEventListener("click", async () => {
         const text = inputEl.value.trim();
         if (!text) return alert("Enter a comment");
@@ -245,6 +246,28 @@ function setupSidebarCommentUI(storyId) {
             console.error("Post failed", await resp.text());
             return;
         }
+        inputEl.value = "";
+        await reloadComments();
+    });*/
+    const newButtonEl = buttonEl.cloneNode(true);
+    buttonEl.parentNode.replaceChild(newButtonEl, buttonEl);
+
+    newButtonEl.addEventListener("click", async () => {
+        const text = inputEl.value.trim();
+        if (!text) return alert("Enter a comment");
+
+        const resp = await fetch("/api/add_comment", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ storyId, text }),
+        });
+
+        if (!resp.ok) {
+            console.error("Post failed", await resp.text());
+            return;
+        }
+
         inputEl.value = "";
         await reloadComments();
     });

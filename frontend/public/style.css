@@ -182,7 +182,7 @@ footer{
     text-align: center;
 }
 
-/* ADDED FOR HW3 */
+/* ADDED FOR HW3 ========================== */
 button{
     background-color: #545353;
     border: 0.5px solid #454040;
@@ -368,6 +368,10 @@ button:active {
 .comment-body {
     color: #333;
     margin-left: 4px;
+    flex: 1;
+    word-break: break-word;
+    white-space: pre-wrap; 
+    overflow-wrap: anywhere; 
 }
 
 .comment-removed{
