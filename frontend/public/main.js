@@ -137,29 +137,30 @@ function setupSidebarCommentUI(storyId) {
                     const textDiv = document.createElement("div");
                     textDiv.className = "comment-text";
 
+                    const topRow = document.createElement("div");
+                    topRow.className = "comment-header";
+
                     const avatar = document.createElement("div");
                     avatar.className = "comment-avatar";
-
                     avatar.textContent = c.authorEmail.charAt(0).toUpperCase();
-                    textDiv.appendChild(avatar);
 
                     const author = document.createElement("span");
                     author.className = "comment-author";
                     author.textContent = c.authorEmail;
 
-                    const body = document.createElement("span");
+                    topRow.appendChild(avatar);
+                    topRow.appendChild(author);
+
+                    const body = document.createElement("div");
                     body.className = "comment-body";
+                    body.textContent = c.removedByModerator ? "Comment removed by moderator" : c.text;
+
                     if (c.removedByModerator) {
-                        body.textContent = "Comment removed by moderator";
-                        body.style.color = "#9c9999"; //to make them grey/translusent
-                    }
-                    else{
-                        body.textContent = ` ${c.text}`;
+                        body.style.color = "#9c9999";
                     }
 
-                    textDiv.appendChild(author);
+                    textDiv.appendChild(topRow);
                     textDiv.appendChild(body);
-
                     div.appendChild(textDiv);
 
                     // mod delete

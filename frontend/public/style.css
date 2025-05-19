@@ -181,9 +181,8 @@ footer{
     padding: 20px;
     text-align: center;
 }
-
 /* ADDED FOR HW3 ========================== */
-button{
+button {
     background-color: #545353;
     border: 0.5px solid #454040;
     border-radius: 5px;
@@ -191,7 +190,7 @@ button{
     color: #FFFFFF;
     cursor: pointer;
     display: inline-block;
-    font-family:Helvetica,Arial,sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: small;
     font-weight: 600;
     line-height: normal;
@@ -220,21 +219,20 @@ button:active {
     transform: translateY(0);
 }
 
-#auth-controls{
+#auth-controls {
     position: absolute;
     top: 20px;
     right: 20px;
 }
 
-
 .comments-section .comment-input,
 .comments-section .reply-input {
     background-color: #9c9999;
     border: 2px solid #4d4c4c;
-    border-radius: 5px; 
+    border-radius: 5px;
     box-sizing: border-box;
-    color: #FFFFFF; 
-    font-family:Helvetica, Arial, sans-serif;
+    color: #FFFFFF;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 0.875rem;
     padding: 8px 12px;
     min-width: 150px;
@@ -309,7 +307,7 @@ button:active {
     background-color: #444;
 }
 
-/* COMMENT CHANGES */
+/* COMMENT STRUCTURE */
 .comment-divider {
     border: none;
     border-top: 1px solid #ccc;
@@ -317,15 +315,52 @@ button:active {
 }
 
 .comment-text {
-    word-wrap: break-word;
-    white-space: normal;
-    font-size: 0.95em;
-    line-height: 1.5;
-    margin-bottom: 6px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.comment-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
 
-/* OVERLAY, becomes dark when sidebar */
+.comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #c5c0c0;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-right: 10px;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: #222;
+    font-size: 0.95em;
+}
+
+.comment-body {
+    color: #333;
+    margin-left: 42px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.comment-removed {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #9c9999;
+}
+
+/* OVERLAY for sidebar */
 #overlay {
     position: fixed;
     top: 0;
@@ -335,46 +370,4 @@ button:active {
     background-color: rgba(0, 0, 0, 0.3);
     z-index: 999;
     display: none;
-}
-
-
-.comment-text {
-    display: flex;
-    align-items: center;
-    margin-bottom: 4px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.comment-avatar {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background-color: #c5c0c0;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin-right: 8px;
-    font-size: 1rem;
-}
-
-.comment-author {
-    font-weight: bold;
-    color: #222;
-}
-
-.comment-body {
-    color: #333;
-    margin-left: 4px;
-    flex: 1;
-    word-break: break-word;
-    white-space: pre-wrap; 
-    overflow-wrap: anywhere; 
-}
-
-.comment-removed{
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #9c9999;
 }
