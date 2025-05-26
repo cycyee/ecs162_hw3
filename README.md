@@ -1,7 +1,4 @@
 # NYT API Website HW3 
-- Calvin Yee
-- Mehroz Akhtar
-
 > [!NOTE]
 > Make sure to put API key in the .env file!
 *Example .env file:*
